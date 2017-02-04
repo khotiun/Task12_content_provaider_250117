@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Task12_content_provaider_250117</string>
+    <string name="txt_menu_list_persons">List Persons</string>
+    <string name="close">Close</string>
+    <string name="dialog_person_put_id">Put id</string>
+    <string name="get_person">get person</string>
+    <string name="delete_all_persons">delete all persons</string>
+</resources>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_person"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.mypc.task12_content_provaider_250117.ui.activities.DetailsPersonsActivity">
+
+    <TextView
+        android:id="@+id/text_view_person_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="id"
+        android:textSize="20dp"/>
+
+    <TextView
+        android:id="@+id/text_view_person_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text_view_person_id"
+        android:text="Name"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/text_view_person_surname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_view_person_name"
+        android:text="Surname"
+        android:textSize="20dp"/>
+
+
+    <TextView
+        android:id="@+id/text_view_person_phone_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_view_person_surname"
+        android:text="Phone"
+        android:textSize="20dp"/>
+
+    <TextView
+        android:id="@+id/text_view_person_mail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_view_person_phone_number"
+        android:text="Email"
+        android:textSize="20dp"/>
+
+    <TextView
+        android:id="@+id/text_view_person_skype"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_view_person_mail"
+        android:text="Skype"
+        android:textSize="20dp"/>
+
+</RelativeLayout>

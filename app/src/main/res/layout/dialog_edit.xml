@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/edit_text_dialog_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="id"
+        android:textSize="20dp"/>
+
+    <EditText
+        android:id="@+id/edit_text_dialog_name"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edit_text_dialog_id"
+        android:text="Name"
+        android:textSize="20dp" />
+
+    <EditText
+        android:id="@+id/edit_text_dialog_surname"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_text_dialog_name"
+        android:text="Surname"
+        android:textSize="20dp"/>
+
+
+    <EditText
+        android:id="@+id/edit_text_dialog_phone_number"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_text_dialog_surname"
+        android:text="Phone"
+        android:textSize="20dp"/>
+
+    <EditText
+        android:id="@+id/edit_text_dialog_mail"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_text_dialog_phone_number"
+        android:text="Email"
+        android:textSize="20dp"/>
+
+    <EditText
+        android:id="@+id/edit_text_dialog_skype"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_text_dialog_mail"
+        android:text="Skype"
+        android:textSize="20dp"/>
+
+</RelativeLayout>

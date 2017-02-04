@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_get_id_person"
+        android:orderInCategory="100"
+        android:title="@string/get_person"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_all_persons"
+        android:orderInCategory="100"
+        android:title="@string/delete_all_persons"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_clouse_list_person"
+        android:orderInCategory="100"
+        android:title="@string/close"
+        app:showAsAction="never" />
+</menu>
