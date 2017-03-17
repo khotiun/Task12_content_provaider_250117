@@ -14,10 +14,22 @@ public class Person implements Serializable {
     private String mPhoneNumber;
     private String mMail;
     private String mSkype;
+    private String mProfile;
+
     public static Person selectPerson;
 
     public Person() {
         super();
+    }
+
+    public Person(int mid, String mName, String mSurname, String mPhoneNumber, String mMail, String mSkype, String mProfile) {
+        this.mid = mid;
+        this.mName = mName;
+        this.mSurname = mSurname;
+        this.mPhoneNumber = mPhoneNumber;
+        this.mMail = mMail;
+        this.mSkype = mSkype;
+        this.mProfile = mProfile;
     }
 
     public Person(int mid, String mName, String mSurname, String mPhoneNumber, String mMail, String mSkype) {
@@ -65,6 +77,13 @@ public class Person implements Serializable {
     public int getMid() {
 
         return mid;
+    }
+    public String getmProfile() {
+        return mProfile;
+    }
+
+    public void setmProfile(String mProfile) {
+        this.mProfile = mProfile;
     }
 
     public String getmName() {

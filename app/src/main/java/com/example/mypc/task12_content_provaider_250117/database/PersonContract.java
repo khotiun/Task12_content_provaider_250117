@@ -13,4 +13,5 @@ public class PersonContract implements BaseColumns{
     public static final String KEY_PHONE = "Phone";
     public static final String KEY_MAIL = "Mail";
     public static final String KEY_SKYPE = "Skype";
+    public static final String KEY_PROFILE = "Profile";
 }

@@ -10,51 +10,86 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.mypc.task12_content_provaider_250117.ui.activities.MainActivity">
 
-    <EditText
-        android:id="@+id/edit_text_name"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Name"
-        android:textSize="20dp" />
+        android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/edit_text_surname"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/edit_text_name"
-        android:hint="Surname"
-        android:textSize="20dp"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+            <RelativeLayout
+                android:id="@+id/RL_for_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/edit_text_phone_number"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/edit_text_surname"
-        android:hint="Phone"
-        android:textSize="20dp"/>
+                <EditText
+                    android:id="@+id/edit_text_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Name"
+                    android:textSize="20dp" />
 
-    <EditText
-        android:id="@+id/edit_text_mail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/edit_text_phone_number"
-        android:hint="Email"
-        android:textSize="20dp"/>
+                <EditText
+                    android:id="@+id/edit_text_surname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/edit_text_name"
+                    android:hint="Surname"
+                    android:textSize="20dp" />
 
-    <EditText
-        android:id="@+id/edit_text_skype"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/edit_text_mail"
-        android:hint="Skype"
-        android:textSize="20dp"/>
+                <EditText
+                    android:id="@+id/edit_text_phone_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/edit_text_surname"
+                    android:hint="Phone"
+                    android:textSize="20dp" />
 
-    <Button
-        android:id="@+id/btn_main_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="save"
-        android:textSize="20dp"
-        android:layout_alignParentBottom="true"/>
+                <EditText
+                    android:id="@+id/edit_text_mail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/edit_text_phone_number"
+                    android:hint="Email"
+                    android:textSize="20dp" />
+
+                <EditText
+                    android:id="@+id/edit_text_skype"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/edit_text_mail"
+                    android:hint="Skype"
+                    android:textSize="20dp" />
+
+                <ImageView
+                    android:id="@+id/image_view_main_profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_below="@id/edit_text_skype" />
+            </RelativeLayout>
+
+            <FrameLayout
+                android:id="@+id/fl"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/RL_for_list">
+
+                <Button
+                    android:id="@+id/btn_main_camera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/image_view_main_profile"
+                    android:text="take photo" />
+            </FrameLayout>
+            <Button
+                android:id="@+id/btn_main_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:text="save"
+                android:textSize="20dp"
+                android:layout_below="@+id/fl"/>
+        </RelativeLayout>
+    </ScrollView>
 </RelativeLayout>

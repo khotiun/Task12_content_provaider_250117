@@ -1,14 +1,20 @@
 package com.example.mypc.task12_content_provaider_250117.ui.adapters;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +23,16 @@ import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-
 import com.example.mypc.task12_content_provaider_250117.R;
+import com.example.mypc.task12_content_provaider_250117.database.DBContentProvider;
+import com.example.mypc.task12_content_provaider_250117.database.PersonContract;
 import com.example.mypc.task12_content_provaider_250117.model.Person;
 import com.example.mypc.task12_content_provaider_250117.ui.activities.DetailsPersonsActivity;
 import com.example.mypc.task12_content_provaider_250117.ui.activities.MainActivity;
+import com.example.mypc.task12_content_provaider_250117.utils.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,19 +43,21 @@ import java.util.List;
 
 public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
 
+    Bitmap bitmapDetail;
+    public static Person detailPerson;
+
     private List<Person> persons;
     private List<Person> clonePersonList;
     private Filter filter;
     private Context mContext;
-
-
+    DBContentProvider dbContentProvider;
+    public final static int EDIT_REQUEST_CODE_PHOTO = 2;
 
     public FilterAdapter(Context context, ArrayList<Person> persons) {
         super(context, R.layout.item_person, persons);
         this.persons = persons;
         clonePersonList = persons;
         mContext = context;
-
     }
 
     @Override
@@ -68,7 +79,7 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
 
     @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {//возвращает вью
+    public View getView(final int position, View convertView, ViewGroup parent) {//возвращает вью
         LayoutInflater layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);//берем из контекста сервисный лойаут
         PersonViewHolder holder = new PersonViewHolder();//создаем обьект PersonViewHolder
         View view = convertView; //может взять готовый вью, из списка который не используется
@@ -85,8 +96,12 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
         holder.tvPersonName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Person.selectPerson = person;
+//                Person.selectPerson = person;
+                int idPerson = persons.get(position).getMid();
+                Bundle bundle = new Bundle();
+                bundle.putInt("IdPersonToDetailActivity", idPerson);//ложим в бандл id персоны что бы достать ее в DetailsPersonsActivity
                 Intent intent = new Intent(mContext, DetailsPersonsActivity.class);
+                intent.putExtras(bundle);//ложим в intent bundle
                 mContext.startActivity(intent);
 
             }
@@ -107,7 +122,6 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
                 openEditDialog(person);
             }
         });
-
         return view;
     }
 
@@ -129,7 +143,7 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
 
     }
 
-    private void openEditDialog(final Person person) {
+    public void openEditDialog(final Person person) {
         final LayoutInflater dialogInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View root = dialogInflater.inflate(R.layout.dialog_edit, null);
 
@@ -139,6 +153,8 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
         final EditText etDialogPhone = (EditText) root.findViewById(R.id.edit_text_dialog_phone_number);
         final EditText etDialogMail = (EditText) root.findViewById(R.id.edit_text_dialog_mail);
         final EditText etDialogSkype = (EditText) root.findViewById(R.id.edit_text_dialog_skype);
+        final ImageView ivDialogPhoto = (ImageView) root.findViewById(R.id.image_view_edit_dialog_photo);
+        final ImageButton ibDialogPhoto = (ImageButton) root.findViewById(R.id.image_btn_edit_dialog_photo);
 
         tvDialogId.setText(String.valueOf(person.getMid()));
         etDialogName.setText(String.valueOf(person.getmName()));
@@ -146,6 +162,19 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
         etDialogPhone.setText(String.valueOf(person.getmPhoneNumber()));
         etDialogMail.setText(String.valueOf(person.getmMail()));
         etDialogSkype.setText(String.valueOf(person.getmSkype()));
+        if (person.getmProfile() != null) {
+            ivDialogPhoto.setImageBitmap(Utility.decodeBase64(person.getmProfile()));
+        }
+        ibDialogPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                detailPerson = person;
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);//вызов камеры
+                ((Activity) mContext).startActivityForResult(intent, EDIT_REQUEST_CODE_PHOTO);//вызов другой активности с адаптера
+                //ivDialogPhoto.setImageBitmap(bitmapDetail);
+                // notifyDataSetChanged();
+            }
+        });
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);//запуст диалогового окна, параметр контекст откуда будет запущено диалоговое окно
         builder.setView(root);//задаютсе вью как контент для использования
@@ -160,11 +189,18 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
                 person.setmPhoneNumber(etDialogPhone.getText().toString());
                 person.setmMail(etDialogMail.getText().toString());
                 person.setmSkype(etDialogSkype.getText().toString());
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(PersonContract.KEY_NAME, etDialogName.getText().toString());
+                contentValues.put(PersonContract.KEY_SURNAME, etDialogSurname.getText().toString());
+                contentValues.put(PersonContract.KEY_PHONE, etDialogPhone.getText().toString());
+                contentValues.put(PersonContract.KEY_MAIL, etDialogMail.getText().toString());
+                contentValues.put(PersonContract.KEY_SKYPE, etDialogSkype.getText().toString());
+                mContext.getContentResolver().update(Uri.parse(DBContentProvider.PERSONS_CONTENT_URI + "/" + person.getMid()), contentValues, null, null);
                 notifyDataSetChanged();//обновляетListView
             }
         });
 
-        builder.setNegativeButton("Deleete", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Delete", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -174,7 +210,7 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (!persons.isEmpty()) {
                             persons.remove(person);
-
+                            mContext.getContentResolver().delete(Uri.parse(DBContentProvider.PERSONS_CONTENT_URI + "/" + person.getMid()), null, null);
                             sendNotyfication(person);
                             notifyDataSetInvalidated();//метод останавливает адаптер от доступа к данным
                         }
@@ -265,8 +301,26 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
             }
         }
     }
-    public void dropAllPesons(){//удаление всех персон из бд и с адаптера
+
+    public void dropAllPesons() {//удаление всех персон с адаптера
         persons.clear();
         notifyDataSetChanged();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.d("TAG", " onActivityResult" + requestCode);
+        Bundle bnd2 = intent.getExtras();
+        if (bnd2 != null) {
+            Log.d("TAG", " BundleonActivityResult");
+            Object obj = intent.getExtras().get("data");//забираем со второй активности значение по ключу
+            if (obj instanceof Bitmap) {//instanceof - проверка, является ли данный обьект Bitmap
+                Bitmap bitmap = (Bitmap) obj;//явное привидение типов
+                bitmapDetail = (Bitmap) obj;//явное привидение типов
+                //bitmapStatic = bitmap;
+                Log.d("TAG", " 2BundleonActivityResult");
+                // detailPerson.setmProfile(Utility.encodeToBase64(bitmap));//задаем нашей персоне картинку
+//                openEditDialog(detailPerson);
+            }
+        }
     }
 }

@@ -3,11 +3,14 @@ package com.example.mypc.task12_content_provaider_250117.ui.activities;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,11 +29,12 @@ import java.util.ArrayList;
 
 public class ListPersonActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
+    public static Bitmap bitmapStatic;
+    public static Person detailPerson;
     ArrayList<Person> persons;
     EditText edSearch;
     FilterAdapter filterAdapter;
     ListView lv;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,17 +47,18 @@ public class ListPersonActivity extends AppCompatActivity implements AdapterView
         String sortOrder = null;
 
         Cursor cursor = getContentResolver().query(DBContentProvider.PERSONS_CONTENT_URI, null, selection, null, sortOrder);
-
-        while (cursor.moveToNext()){
-            int id = cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID));
-            String name = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
-            String surname = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
-            String phone = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
-            String mail = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
-            String skype = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
-            persons.add(new Person(id, name, surname, phone, mail, skype));
+        if (cursor.moveToFirst()) {
+            while (cursor.moveToNext()) {
+                int id = cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID));
+                String name = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
+                String surname = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
+                String phone = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
+                String mail = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
+                String skype = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
+                String profile = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PROFILE));
+                persons.add(new Person(id, name, surname, phone, mail, skype, profile));
+            }
         }
-
         filterAdapter = new FilterAdapter(this, persons);
         lv.setAdapter(filterAdapter);
         edSearch = (EditText) findViewById(R.id.text_view_list_select);
@@ -77,7 +82,6 @@ public class ListPersonActivity extends AppCompatActivity implements AdapterView
             @Override
             public void afterTextChanged(Editable editable) {//afterTextChanged(Editable s) - метод вызывается, чтобы уведомить нас, что где-то в строке s, текст был изменен.
                 // В этом методе можно вносить изменения в текст s, но будьте осторожны, чтобы не зациклиться, потому что любые изменения в s рекурсивно вызовут этот же метод.
-
             }
         });
     }
@@ -90,12 +94,12 @@ public class ListPersonActivity extends AppCompatActivity implements AdapterView
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
         switch (item.getItemId()) {
             case R.id.action_get_id_person:
                 getPersonId();
                 break;
             case R.id.action_delete_all_persons:
+                getContentResolver().delete(DBContentProvider.PERSONS_CONTENT_URI, null, null);
                 filterAdapter.dropAllPesons();
                 break;
             case R.id.action_clouse_list_person:
@@ -121,7 +125,25 @@ public class ListPersonActivity extends AppCompatActivity implements AdapterView
         builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-//                filterAdapter.resetData(crudsqLite.getPerson(Integer.parseInt(etDialogGetPersonId.getText().toString())));
+
+                Cursor cursor = getContentResolver().query(DBContentProvider.PERSONS_CONTENT_URI, null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    do {
+                        if (Integer.parseInt(etDialogGetPersonId.getText().toString()) == cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID))) {
+                            int id = cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID));
+                            String name = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
+                            String surname = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
+                            String phone = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
+                            String mail = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
+                            String skype = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
+                            String profile = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PROFILE));
+                            ArrayList<Person> list = new ArrayList<Person>();
+                            list.add(new Person(id, name, surname, phone, mail, skype, profile));
+                            filterAdapter.resetData(list);
+                        }
+                    } while (cursor.moveToNext());
+                    cursor.close();
+                }
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -132,4 +154,22 @@ public class ListPersonActivity extends AppCompatActivity implements AdapterView
         });
         builder.show();
     }
-}
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        Log.d("TAG", " onActivityResult" + requestCode);
+//        Bundle bnd2 = intent.getExtras();
+//        if (bnd2 != null) {
+//            Log.d("TAG", " BundleonActivityResult");
+//            Object obj = intent.getExtras().get("data");//забираем со второй активности значение по ключу
+//            if (obj instanceof Bitmap) {//instanceof - проверка, является ли данный обьект Bitmap
+//                Bitmap bitmap = (Bitmap) obj;//явное привидение типов
+//                Log.d("TAG", " 2BundleonActivityResult");
+//                detailPerson.setmProfile(Utility.encodeToBase64(bitmap));//задаем нашей персоне картинку
+                //detailPerson.setmMail("swwsws");
+//                filterAdapter.openEditDialog(FilterAdapter.detailPerson);
+            }
+        }
+//    }
+//}
