@@ -32,6 +32,7 @@ import com.example.mypc.task12_content_provaider_250117.database.PersonContract;
 import com.example.mypc.task12_content_provaider_250117.model.Person;
 import com.example.mypc.task12_content_provaider_250117.ui.activities.DetailsPersonsActivity;
 import com.example.mypc.task12_content_provaider_250117.ui.activities.MainActivity;
+import com.example.mypc.task12_content_provaider_250117.utils.DatabaseTask;
 import com.example.mypc.task12_content_provaider_250117.utils.Utility;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import java.util.List;
 
 public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
 
+    DatabaseTask databaseTask = new DatabaseTask(getContext());
     Bitmap bitmapDetail;
     public static Person detailPerson;
 
@@ -195,7 +197,9 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
                 contentValues.put(PersonContract.KEY_PHONE, etDialogPhone.getText().toString());
                 contentValues.put(PersonContract.KEY_MAIL, etDialogMail.getText().toString());
                 contentValues.put(PersonContract.KEY_SKYPE, etDialogSkype.getText().toString());
-                mContext.getContentResolver().update(Uri.parse(DBContentProvider.PERSONS_CONTENT_URI + "/" + person.getMid()), contentValues, null, null);
+
+                databaseTask.execute(DatabaseTask.UPDATE, contentValues);
+//                mContext.getContentResolver().update(Uri.parse(DBContentProvider.PERSONS_CONTENT_URI + "/" + person.getMid()), contentValues, null, null);
                 notifyDataSetChanged();//обновляетListView
             }
         });
@@ -210,7 +214,10 @@ public class FilterAdapter extends ArrayAdapter<Person> implements Filterable {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (!persons.isEmpty()) {
                             persons.remove(person);
-                            mContext.getContentResolver().delete(Uri.parse(DBContentProvider.PERSONS_CONTENT_URI + "/" + person.getMid()), null, null);
+                            ContentValues values = new ContentValues();
+                            values.put(PersonContract.KEY_ID, person.getMid());
+                            databaseTask.execute(DatabaseTask.DELETE_BY_ID,values);
+//                            mContext.getContentResolver().delete(Uri.parse(DBContentProvider.PERSONS_CONTENT_URI + "/" + person.getMid()), null, null);
                             sendNotyfication(person);
                             notifyDataSetInvalidated();//метод останавливает адаптер от доступа к данным
                         }

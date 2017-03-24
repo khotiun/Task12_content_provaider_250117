@@ -3,7 +3,6 @@ package com.example.mypc.task12_content_provaider_250117.utils;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.example.mypc.task12_content_provaider_250117.database.DBContentProvider;
@@ -45,7 +44,7 @@ public class DatabaseTask extends AsyncTask<Object, Void, Void> {
                 break;
             case UPDATE:
                 id = (Integer) params[0];
-                values = (ContentValues) params[2];
+                values = (ContentValues) params[1];
                 contentResolver.update(DBContentProvider.PERSONS_CONTENT_URI.buildUpon().
                         appendPath(String.valueOf(id)).build(), values, null, null);
                 contentResolver.notifyChange(DBContentProvider.PERSONS_CONTENT_URI, null);

@@ -16,8 +16,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.example.mypc.task12_content_provaider_250117.R;
-import com.example.mypc.task12_content_provaider_250117.database.DBContentProvider;
 import com.example.mypc.task12_content_provaider_250117.database.PersonContract;
+import com.example.mypc.task12_content_provaider_250117.utils.DatabaseTask;
 import com.example.mypc.task12_content_provaider_250117.utils.Utility;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -100,7 +100,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String imageEncodeString = Utility.encodeToBase64(bitmap);//кодируем bitmap в строку
                     contentValues.put(PersonContract.KEY_PROFILE, imageEncodeString);
                 }
-                getContentResolver().insert(DBContentProvider.PERSONS_CONTENT_URI, contentValues);
+//                getContentResolver().insert(DBContentProvider.PERSONS_CONTENT_URI, contentValues);
+                DatabaseTask databaseTask = new DatabaseTask(this);
+                databaseTask.execute(DatabaseTask.INSERT, contentValues);
                 folowToListActivity();
                 break;
             case (R.id.btn_main_camera):

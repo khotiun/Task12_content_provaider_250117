@@ -24,5 +24,5 @@ public class Config {
             + ");";
 
     public static final String COMMAND_DELETE = "DROP TABLE IF EXISTS " + TABLE_PERSON;
-    public static final int DB_VERSION = 2201025;
+    public static final int DB_VERSION = 2201028;
 }

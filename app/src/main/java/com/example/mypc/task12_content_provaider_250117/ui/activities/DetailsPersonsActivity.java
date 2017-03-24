@@ -30,6 +30,7 @@ import com.example.mypc.task12_content_provaider_250117.R;
 import com.example.mypc.task12_content_provaider_250117.database.DBContentProvider;
 import com.example.mypc.task12_content_provaider_250117.database.PersonContract;
 import com.example.mypc.task12_content_provaider_250117.model.Person;
+import com.example.mypc.task12_content_provaider_250117.utils.DatabaseTask;
 import com.example.mypc.task12_content_provaider_250117.utils.Utility;
 
 import java.io.ByteArrayOutputStream;
@@ -94,7 +95,7 @@ public class DetailsPersonsActivity extends AppCompatActivity implements LoaderM
     @Override
     protected void onResume() {
         super.onResume();
-        getLoaderManager().restartLoader(0, null, this);//перезагрузка Loader
+        // getLoaderManager().restartLoader(0, null, this);//перезагрузка Loader
     }
 
     @Override
@@ -160,7 +161,7 @@ public class DetailsPersonsActivity extends AppCompatActivity implements LoaderM
         Bundle bundleAdapter = intent.getExtras();
         if (bundleAdapter != null) {
             idPerson = bundleAdapter.getInt("IdPersonToDetailActivity");
-            selection = "Id = " + idPerson;
+            selection = "ID = " + idPerson;
         }
         CursorLoader loader = new CursorLoader(this, DBContentProvider.PERSONS_CONTENT_URI, null, selection, null, sortOrder);
         return loader;
@@ -168,24 +169,25 @@ public class DetailsPersonsActivity extends AppCompatActivity implements LoaderM
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {//результат работу лоадер, новый курсор с данными
-        cursor.moveToNext();
-        String idPerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_ID));
-        tvPersonId.setText(idPerson);
-        String namePerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
-        tvPersonName.setText(namePerson);
-        String surnamePerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
-        tvPersonSurname.setText(surnamePerson);
-        String phonePerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
-        tvPersonPhone.setText(phonePerson);
-        String mailPerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
-        tvPersonMail.setText(mailPerson);
-        String skypePerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
-        tvPersonSkype.setText(skypePerson);
-        String photoPerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PROFILE));
-        if (photoPerson != null) {
-            ivProfile.setImageBitmap(Utility.decodeBase64(photoPerson));
+        while (cursor.moveToNext()) {
+            String idPerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_ID));
+            tvPersonId.setText(idPerson);
+            String namePerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
+            tvPersonName.setText(namePerson);
+            String surnamePerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
+            tvPersonSurname.setText(surnamePerson);
+            String phonePerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
+            tvPersonPhone.setText(phonePerson);
+            String mailPerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
+            tvPersonMail.setText(mailPerson);
+            String skypePerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
+            tvPersonSkype.setText(skypePerson);
+            String photoPerson = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PROFILE));
+            if (photoPerson != null) {
+                ivProfile.setImageBitmap(Utility.decodeBase64(photoPerson));
+            }
+            person = new Person(Integer.parseInt(idPerson), namePerson, surnamePerson, phonePerson, mailPerson, skypePerson, photoPerson);
         }
-        person = new Person(Integer.parseInt(idPerson), namePerson, surnamePerson, phonePerson, mailPerson, skypePerson, photoPerson);
     }
 
     @Override
@@ -232,7 +234,12 @@ public class DetailsPersonsActivity extends AppCompatActivity implements LoaderM
         Log.d("WER", "bitmap");
         if (resultCode == Activity.RESULT_OK) {//если действие с вызваной активности прошло успешно и активнасть возвращает нам результат
             if (requestCode == SELECT_FILE) {//определем чем равен пришелший requestCode
-                onSelectFromGalleryResult(data);//если равен 1, тогда запускаем этот метод и передаем ему intent
+                onSelectFromGalleryResult(data);
+//                Bitmap bitmap = ((BitmapDrawable) ivProfile.getDrawable()).getBitmap();
+//                String imageIncodedString = Utility.encodeToBase64(bitmap);
+//                ContentValues contentValues = new ContentValues();
+//                contentValues.put(PersonContract.KEY_PROFILE, imageIncodedString);
+//                getContentResolver().update(Uri.parse(DBContentProvider.PERSONS_CONTENT_URI + "/" + idPerson), contentValues, null, null);//если равен 1, тогда запускаем этот метод и передаем ему intent
             } else if (requestCode == REQUEST_CAMERA) {
                 onGalleryImageResult(data);
                 Bundle bndl = data.getExtras();
@@ -245,7 +252,9 @@ public class DetailsPersonsActivity extends AppCompatActivity implements LoaderM
                         String imageIncodedString = Utility.encodeToBase64(bitmap);
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(PersonContract.KEY_PROFILE, imageIncodedString);
-                        getContentResolver().update(Uri.parse(DBContentProvider.PERSONS_CONTENT_URI + "/" + idPerson), contentValues, null, null);
+                        DatabaseTask databaseTask = new DatabaseTask(this);
+                        databaseTask.execute(DatabaseTask.UPDATE, contentValues);
+                       // getContentResolver().update(Uri.parse(DBContentProvider.PERSONS_CONTENT_URI + "/" + idPerson), contentValues, null, null);
                     }
                 }
             }

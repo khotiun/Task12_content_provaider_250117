@@ -1,9 +1,12 @@
 package com.example.mypc.task12_content_provaider_250117.ui.activities;
 
 import android.app.AlertDialog;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -24,10 +27,11 @@ import com.example.mypc.task12_content_provaider_250117.database.DBContentProvid
 import com.example.mypc.task12_content_provaider_250117.database.PersonContract;
 import com.example.mypc.task12_content_provaider_250117.model.Person;
 import com.example.mypc.task12_content_provaider_250117.ui.adapters.FilterAdapter;
+import com.example.mypc.task12_content_provaider_250117.utils.DatabaseTask;
 
 import java.util.ArrayList;
 
-public class ListPersonActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class ListPersonActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     public static Bitmap bitmapStatic;
     public static Person detailPerson;
@@ -40,25 +44,26 @@ public class ListPersonActivity extends AppCompatActivity implements AdapterView
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_person);
+        getLoaderManager().initLoader(0, null, this);
         lv = (ListView) findViewById(R.id.lv);
         persons = new ArrayList<>();
 
         String selection = null;
         String sortOrder = null;
 
-        Cursor cursor = getContentResolver().query(DBContentProvider.PERSONS_CONTENT_URI, null, selection, null, sortOrder);
-        if (cursor.moveToFirst()) {
-            while (cursor.moveToNext()) {
-                int id = cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID));
-                String name = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
-                String surname = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
-                String phone = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
-                String mail = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
-                String skype = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
-                String profile = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PROFILE));
-                persons.add(new Person(id, name, surname, phone, mail, skype, profile));
-            }
-        }
+//        Cursor cursor = getContentResolver().query(DBContentProvider.PERSONS_CONTENT_URI, null, selection, null, sortOrder);
+//        if (cursor.moveToFirst()) {
+//            while (cursor.moveToNext()) {
+//                int id = cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID));
+//                String name = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
+//                String surname = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
+//                String phone = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
+//                String mail = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
+//                String skype = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
+//                String profile = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PROFILE));
+//                persons.add(new Person(id, name, surname, phone, mail, skype, profile));
+//            }
+//        }
         filterAdapter = new FilterAdapter(this, persons);
         lv.setAdapter(filterAdapter);
         edSearch = (EditText) findViewById(R.id.text_view_list_select);
@@ -99,14 +104,32 @@ public class ListPersonActivity extends AppCompatActivity implements AdapterView
                 getPersonId();
                 break;
             case R.id.action_delete_all_persons:
-                getContentResolver().delete(DBContentProvider.PERSONS_CONTENT_URI, null, null);
-                filterAdapter.dropAllPesons();
+                dropAllPersons();
                 break;
             case R.id.action_clouse_list_person:
                 finish();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void dropAllPersons() {
+//        new AsyncTask<Void, Void, Void>() {
+//            @Override
+//            protected Void doInBackground(Void... voids) {
+//                getContentResolver().delete(DBContentProvider.PERSONS_CONTENT_URI, null, null);
+//                return null;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Void aVoid) {
+//                super.onPostExecute(aVoid);
+//                filterAdapter.notifyDataSetChanged();
+//            }
+//        }.execute();
+//
+        DatabaseTask databaseTask = new DatabaseTask(this);
+        databaseTask.execute(DatabaseTask.DELETE);
     }
 
     @Override
@@ -125,25 +148,28 @@ public class ListPersonActivity extends AppCompatActivity implements AdapterView
         builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-
-                Cursor cursor = getContentResolver().query(DBContentProvider.PERSONS_CONTENT_URI, null, null, null, null);
-                if (cursor.moveToFirst()) {
-                    do {
-                        if (Integer.parseInt(etDialogGetPersonId.getText().toString()) == cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID))) {
-                            int id = cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID));
-                            String name = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
-                            String surname = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
-                            String phone = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
-                            String mail = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
-                            String skype = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
-                            String profile = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PROFILE));
-                            ArrayList<Person> list = new ArrayList<Person>();
-                            list.add(new Person(id, name, surname, phone, mail, skype, profile));
-                            filterAdapter.resetData(list);
-                        }
-                    } while (cursor.moveToNext());
-                    cursor.close();
-                }
+                int idPerson = Integer.parseInt(etDialogGetPersonId.getText().toString());
+                Bundle bundle = new Bundle();
+                bundle.putInt("SelectById", idPerson);
+                getLoaderManager().restartLoader(0, bundle, ListPersonActivity.this);//Перезагрузка лоадера
+//                Cursor cursor = getContentResolver().query(DBContentProvider.PERSONS_CONTENT_URI, null, null, null, null);
+//                if (cursor.moveToFirst()) {
+//                    do {
+//                        if (Integer.parseInt(etDialogGetPersonId.getText().toString()) == cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID))) {
+//                            int id = cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID));
+//                            String name = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
+//                            String surname = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
+//                            String phone = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
+//                            String mail = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
+//                            String skype = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
+//                            String profile = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PROFILE));
+//                            ArrayList<Person> list = new ArrayList<Person>();
+//                            list.add(new Person(id, name, surname, phone, mail, skype, profile));
+//                            filterAdapter.resetData(list);
+//                        }
+//                    } while (cursor.moveToNext());
+//                    cursor.close();
+//                }
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -167,9 +193,40 @@ public class ListPersonActivity extends AppCompatActivity implements AdapterView
 //                Bitmap bitmap = (Bitmap) obj;//явное привидение типов
 //                Log.d("TAG", " 2BundleonActivityResult");
 //                detailPerson.setmProfile(Utility.encodeToBase64(bitmap));//задаем нашей персоне картинку
-                //detailPerson.setmMail("swwsws");
+        //detailPerson.setmMail("swwsws");
 //                filterAdapter.openEditDialog(FilterAdapter.detailPerson);
-            }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String selection = null;
+        String sortOrder = null;
+        if(bundle != null){//если в лоадер добавлен бандл происходит выборка по id
+            selection = "ID = " + bundle.getInt("SelectById");
         }
-//    }
-//}
+        CursorLoader loader = new CursorLoader(this, DBContentProvider.PERSONS_CONTENT_URI, null, selection, null, sortOrder);
+        return loader;
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        persons.clear();//удаляем массив персон
+        while (cursor.moveToNext()) {//перемещаемся по всем строкам базы
+            int id = cursor.getInt(cursor.getColumnIndex(PersonContract.KEY_ID));
+            String name = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_NAME));
+            String surname = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SURNAME));
+            String phone = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PHONE));
+            String mail = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_MAIL));
+            String skype = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_SKYPE));
+            String profile = cursor.getString(cursor.getColumnIndex(PersonContract.KEY_PROFILE));
+            persons.add(new Person(id, name, surname, phone, mail, skype, profile));
+        }
+        filterAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+}
